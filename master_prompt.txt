@@ -1,0 +1,397 @@
+# Pulse AI — Project Master Specification
+
+## Product
+
+Build **Pulse AI**, a premium AI-powered fitness intelligence and adaptive training coach.
+
+Tagline: "Train smarter. Recover better. Become stronger."
+
+Pulse AI uses wearable health metrics, sleep, recovery, workout history, training goals and user preferences to generate actionable personalized training recommendations.
+
+It is NOT just a wearable metrics dashboard or a generic AI chatbot.
+
+The primary product value is:
+
+**Collect health data → analyze trends → understand recovery → adapt training → explain recommendations.**
+
+---
+
+## Technology Stack
+
+### Frontend
+- Next.js App Router
+- TypeScript
+- Tailwind CSS
+- shadcn/ui
+- Recharts
+- Framer Motion
+- Lucide icons
+
+### Backend
+- Python
+- FastAPI
+- Pydantic
+- SQLAlchemy 2.0
+- Alembic
+
+### Database
+- PostgreSQL
+
+### AI
+- OpenAI API
+- Structured outputs
+- AI services implemented in the Python backend
+
+### Development
+- Monorepo
+- Docker Compose for PostgreSQL
+- REST APIs
+- API versioning: /api/v1
+- Environment variables
+- Type-safe frontend API client
+
+---
+
+## Architecture
+
+Keep frontend and backend separate.
+
+Frontend:
+apps/web
+
+Backend:
+apps/api
+
+The frontend must never directly access the database.
+
+The frontend communicates with FastAPI using REST.
+
+The backend is responsible for:
+- Authentication and authorization
+- Data persistence
+- Health metric calculations
+- Readiness calculations
+- Training logic
+- AI context building
+- AI recommendations
+- Validation
+- Data imports
+
+Use a modular backend architecture with routers, services, repositories, models and schemas.
+
+Do not place business logic inside API route handlers.
+
+---
+
+## Product Modules
+
+1. Today dashboard
+2. Health analytics
+3. Training
+4. AI coach
+5. Progress and reports
+
+---
+
+## Core Features
+
+### Onboarding
+Collect:
+- Fitness goals
+- Age
+- Height
+- Weight
+- Training experience
+- Training days per week
+- Workout duration
+- Equipment
+- Training preferences
+- Wearable source
+
+### Today Dashboard
+Display:
+- Readiness score
+- Readiness category
+- Recovery summary
+- HRV
+- Resting heart rate
+- Sleep duration
+- Training load
+- Daily workout recommendation
+- Recovery trend
+- AI explanation
+
+### Health Analytics
+Display:
+- HRV
+- Resting heart rate
+- Sleep
+- Activity
+- VO2 max
+- Personal baselines
+- Trend charts
+- Time range filters
+
+### Training
+Support:
+- Weekly training plan
+- Workout templates
+- Exercises
+- Sets
+- Reps
+- Weight
+- Rest duration
+- RPE
+- Workout completion
+- Workout history
+- Adaptive training modifications
+
+### AI Coach
+Support contextual conversations about:
+- Recovery
+- Training
+- Fitness goals
+- HRV
+- Sleep
+- VO2 max
+- Workout modifications
+
+The AI must have access to structured user context, health summaries, readiness, workout history and goals.
+
+### Progress
+Display:
+- Weekly activity
+- Training consistency
+- Strength progression
+- Cardio trends
+- Fitness goals
+- Weekly AI report
+
+---
+
+## Readiness Engine
+
+Implement readiness calculations deterministically in Python.
+
+Initial components:
+- HRV status
+- Resting heart rate status
+- Sleep duration
+- Sleep quality
+- Recent training load
+
+Initial prototype weights:
+- HRV: 30%
+- Resting heart rate: 20%
+- Sleep duration: 25%
+- Sleep quality: 15%
+- Training load: 10%
+
+These are prototype assumptions, not medically validated weights.
+
+Normalize metrics relative to the user's own baseline.
+
+Use rolling baselines where enough historical data exists.
+
+When metrics are missing:
+- Do not assign a score of zero.
+- Exclude unavailable metrics.
+- Re-normalize weights.
+- Calculate data coverage.
+- Reduce confidence when data is incomplete.
+
+Do not pretend to have a personalized baseline when insufficient historical data exists.
+
+---
+
+## Adaptive Training Engine
+
+Use deterministic rules to determine workout modifications.
+
+Consider:
+- Readiness
+- Training load
+- Recent workout history
+- Muscle groups trained
+- User goal
+- Planned workout
+- Available time
+- Subjective fatigue
+- User safety constraints
+
+The engine should adjust the existing plan rather than generate a completely random workout every day.
+
+Keep modifications explainable.
+
+Examples:
+- Low recovery: reduce intensity or volume.
+- Moderate recovery: normal workout with controlled intensity.
+- Good recovery and manageable load: normal training.
+- High accumulated load: avoid unnecessary additional volume.
+
+Do not diagnose overtraining or illness.
+
+---
+
+## AI Service
+
+Implement a reusable AI service.
+
+Build a structured context containing:
+- User profile
+- Fitness goals
+- Health summary
+- Readiness
+- Baselines
+- Training history
+- Workout plan
+- Recent recommendations
+
+Use structured outputs and Pydantic validation.
+
+AI is responsible for:
+- Explaining calculated metrics
+- Generating recommendations
+- Providing conversational coaching
+- Creating weekly summaries
+
+AI must not calculate the readiness score from scratch or invent health data.
+
+The AI must not diagnose medical conditions.
+
+If data is insufficient, the AI must acknowledge the uncertainty.
+
+---
+
+## Database
+
+Use PostgreSQL and SQLAlchemy.
+
+Initial entities:
+- Users
+- UserProfiles
+- WearableDevices
+- HealthMetrics
+- DailySummaries
+- ReadinessScores
+- TrainingPlans
+- Workouts
+- WorkoutExercises
+- WorkoutSessions
+- ExerciseSets
+- FitnessGoals
+- CoachRecommendations
+- CoachConversations
+- CoachMessages
+- WeeklyReports
+
+HealthMetrics must support timestamped data and multiple sources.
+
+Store standardized values in regular database columns and source-specific metadata in JSONB.
+
+Use UUID primary keys.
+
+Use UTC timestamps.
+
+Create migrations using Alembic.
+
+---
+
+## Design Direction
+
+The UI should feel like a premium athletic technology product.
+
+Style:
+- Dark charcoal / near-black background
+- Electric lime accent
+- Clean typography
+- Minimal visual clutter
+- High-quality data visualization
+- Smooth animations
+- Thoughtful spacing
+- Premium cards
+- Mobile-responsive
+
+Avoid:
+- Generic admin dashboards
+- Excessive gradients
+- Excessive glassmorphism
+- Too many cards
+- Generic AI chatbot appearance
+
+The readiness score should be visually prominent.
+
+Recommendations should be easy to understand.
+
+Every important AI recommendation must have a "Why?" explanation.
+
+---
+
+## Demo Environment
+
+Build a demo user with 45 days of realistic synthetic wearable data.
+
+Support demo scenarios:
+
+1. Good recovery
+2. Accumulated fatigue
+3. Recovery improving
+4. VO2 max training goal
+
+The demo scenario selector should update the relevant data and recommendations.
+
+Clearly identify synthetic demo data.
+
+---
+
+## Engineering Rules
+
+1. Build incrementally.
+2. Do not implement the entire application in one step.
+3. Before each milestone, inspect the existing project.
+4. Never overwrite existing functionality without understanding it.
+5. Use clean architecture.
+6. Keep business logic separate from route handlers.
+7. Use typed schemas.
+8. Validate all incoming data.
+9. Include loading, error and empty states.
+10. Write tests for the readiness engine and training logic.
+11. Use environment variables for secrets.
+12. Never expose API keys in frontend code.
+13. Document setup and commands.
+14. Do not use hardcoded dashboard data once backend integration is complete.
+15. Keep the product demonstrable at every milestone.
+
+---
+
+## Initial Task
+
+Start with Milestone 1 ONLY.
+
+Inspect the current repository.
+
+If it is empty, establish the monorepo structure.
+
+Implement:
+- Next.js frontend scaffold
+- FastAPI backend scaffold
+- PostgreSQL Docker Compose configuration
+- SQLAlchemy setup
+- Alembic setup
+- Environment configuration
+- Health endpoints
+- CORS configuration for local development
+- Basic API client in Next.js
+- README with setup instructions
+- .env.example
+
+Do not start implementing product features yet.
+
+Before finishing:
+- Verify the frontend starts.
+- Verify the backend starts.
+- Verify PostgreSQL connects.
+- Verify migrations work.
+- Verify the frontend can call the backend health endpoint.
+
+Summarize the files created, architecture decisions and commands to run the project.
